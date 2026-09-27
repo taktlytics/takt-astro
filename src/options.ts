@@ -52,6 +52,7 @@ export interface TaktOptions {
   scrubUrl?: (url: string) => string
   /** Auto-track elements marked with `data-takt-event`. */
   tagged?: boolean
+  debug?: boolean
 }
 
 /**
@@ -92,5 +93,6 @@ export function resolveOptions(options: TaktOptions = {}): InitOptions {
     queryParams: options.queryParams,
     exclude: options.exclude,
     tagged: options.tagged,
+    debug: options.debug,
   }
 }
