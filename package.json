@@ -14,13 +14,13 @@
     "withastro",
     "takt"
   ],
-  "homepage": "https://github.com/vskstudio/takt-astro#readme",
+  "homepage": "https://github.com/taktlytics/takt-astro#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vskstudio/takt-astro.git"
+    "url": "git+https://github.com/taktlytics/takt-astro.git"
   },
   "bugs": {
-    "url": "https://github.com/vskstudio/takt-astro/issues"
+    "url": "https://github.com/taktlytics/takt-astro/issues"
   },
   "publishConfig": {
     "access": "public"

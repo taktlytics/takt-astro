@@ -3,7 +3,7 @@
 
 > 📚 **Documentation** — [taktlytics.com/docs/wrappers/astro](https://taktlytics.com/docs/wrappers/astro)
 
-Astro integration for [Takt](https://github.com/vskstudio/takt-core), privacy-friendly analytics. It injects a tiny browser runtime that boots Takt, fires the initial pageview, and tracks client-side navigations — including [Astro View Transitions](https://docs.astro.build/en/guides/view-transitions/).
+Astro integration for [Takt](https://github.com/taktlytics/takt-core), privacy-friendly analytics. It injects a tiny browser runtime that boots Takt, fires the initial pageview, and tracks client-side navigations — including [Astro View Transitions](https://docs.astro.build/en/guides/view-transitions/).
 
 ## Install
 
