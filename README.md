@@ -11,7 +11,7 @@ Astro integration for [Takt](https://github.com/vskstudio/takt-core), privacy-fr
 pnpm add @vskstudio/takt-astro @vskstudio/takt-core
 ```
 
-Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.8.1`).
+Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.9.0`).
 
 ## Usage
 
@@ -62,8 +62,9 @@ Both the integration and the component accept the same options, with one excepti
 | `trackQuery` | `boolean` | `false` | Keep the full query string and hash instead of stripping them. Wins over `queryParams`. |
 | `queryParams` | `string[]` | – | Allowlist of query params to keep, applied only when `trackQuery` is off. |
 | `exclude` | `string[]` | – | Path prefixes never tracked, e.g. `['/app', '/account']` (segment-bounded, checked at send time). |
-| `scrubUrl` | `(url: string) => string` | – | **Integration only.** Rewrite each URL before it is sent (e.g. strip a fragment or PII). See the note below. |
+| `scrubUrl` | `(url: string) => string` | – | **Integration only.** Rewrite each URL before it is sent (page, referrer, and the `url` prop of outbound-link and file-download events), e.g. to strip a fragment or PII. See the note below. |
 | `tagged` | `boolean` | `false` | Auto-track clicks on `[data-takt-event]` elements; `data-takt-prop-*` attributes become event props. |
+| `debug` | `boolean` | `false` | Log each payload to the browser console before sending. |
 
 > **`scrubUrl` note.** Unlike the other options, `scrubUrl` is a **function**, so it
 > is supported **only via the integration**, not the `<Takt />` component. The
@@ -82,7 +83,7 @@ Astro's client router runs several history operations per navigation (scroll-res
 
 ## Custom events
 
-`track`, `pageview`, `optOut` and `optIn` are re-exported from core for convenience. They act on core's default instance, which only exists in the browser once the injected runtime has booted — so call them from a client-side `<script>`, not from `.astro` frontmatter (where they are silent no-ops):
+`track`, `pageview`, `optOut`, `optIn` and `isOptedOut` are re-exported from core for convenience. `track` and `pageview` act on core's default instance, which only exists in the browser once the injected runtime has booted, so call them from a client-side `<script>`, not from `.astro` frontmatter (where they are silent no-ops):
 
 ```astro
 <button id="signup">Sign up</button>
@@ -91,6 +92,26 @@ Astro's client router runs several history operations per navigation (scroll-res
   document.getElementById('signup')?.addEventListener('click', () => {
     track('Signup', { props: { plan: 'pro' }, revenue: { amount: '9.00', currency: 'USD' } })
   })
+</script>
+```
+
+## Consent
+
+`optOut`, `optIn` and `isOptedOut` do not wait for the runtime to boot: they read and write the stored choice directly. A consent banner can therefore run before the injected runtime, and the instance it boots later honours the choice. Call them from a client-side `<script>`, since the choice lives in the browser.
+
+```astro
+<button id="analytics-toggle"></button>
+<script>
+  import { isOptedOut, optIn, optOut } from '@vskstudio/takt-astro'
+  const button = document.getElementById('analytics-toggle')
+  const render = () => {
+    if (button) button.textContent = isOptedOut() ? 'Enable analytics' : 'Disable analytics'
+  }
+  button?.addEventListener('click', () => {
+    isOptedOut() ? optIn() : optOut()
+    render()
+  })
+  render()
 </script>
 ```
 
@@ -137,7 +158,7 @@ From `@vskstudio/takt-astro`:
 
 - `default` / `takt` — the integration factory (same function under both names)
 - `resolveOptions`, `assertNoScrubUrl`, `buildRuntime` — the internals the `.astro` components build on, exported so you can drive the runtime yourself
-- Re-exported from core: `track`, `pageview`, `optOut`, `optIn`, `createStats`, `PublicApiError`, `badgeUrl`, `embedUrl`
+- Re-exported from core: `track`, `pageview`, `optOut`, `optIn`, `isOptedOut`, `createStats`, `PublicApiError`, `badgeUrl`, `embedUrl`
 - Types: `TaktOptions`, plus `InitOptions`, `TrackOptions`, `BadgeOptions`, `EmbedOptions`, `BadgeVariant`, `BadgeGlyph`, `EmbedTheme`, `WidgetLang`, `StatsClient`, `StatsClientOptions`, `StatsParams`, `StatsPeriod`, `StatsDimension`, `StatsMetrics`, `StatsSummary`, `StatsPoint`, `StatsTimeseries`, `StatsBreakdownRow`, `StatsBreakdown`, `StatsRealtime` re-exported from core
 
 Component subpaths: `@vskstudio/takt-astro/Takt.astro`, `/Badge.astro`, `/Embed.astro`.
