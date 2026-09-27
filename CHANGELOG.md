@@ -1,5 +1,11 @@
 # @vskstudio/takt-astro
 
+## 0.7.0
+
+### Minor Changes
+
+- af8f3b4: New `debug` option on the integration and the `<Takt />` component. The package re-exports the new `isOptedOut` from core next to `optOut` and `optIn`, and all three work before the injected runtime boots. Requires `@vskstudio/takt-core` 0.9.0, where `scrubUrl` also covers outbound-link and file-download URLs.
+
 ## 0.6.2
 
 ### Patch Changes

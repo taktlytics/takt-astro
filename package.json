@@ -1,6 +1,6 @@
 {
   "name": "@vskstudio/takt-astro",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Astro integration for Takt privacy-friendly analytics",
   "license": "MIT",
   "author": "VSK Studio",
