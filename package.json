@@ -32,6 +32,7 @@
       "default": "./dist/index.js"
     },
     "./Takt.astro": "./Takt.astro",
+    "./TaktRoute.astro": "./TaktRoute.astro",
     "./Badge.astro": "./Badge.astro",
     "./Embed.astro": "./Embed.astro",
     "./package.json": "./package.json"
@@ -39,6 +40,7 @@
   "files": [
     "dist",
     "Takt.astro",
+    "TaktRoute.astro",
     "Badge.astro",
     "Embed.astro"
   ],

@@ -2,6 +2,9 @@ import { describe, it, expect, vi } from 'vitest'
 import takt from '../src/index'
 import { resolveOptions } from '../src/options'
 import { buildRuntime } from '../src/runtime'
+import packageJson from '../package.json?raw'
+import component from '../Takt.astro?raw'
+import routeComponent from '../TaktRoute.astro?raw'
 
 type InitConfig = { routeTemplate?: () => string | null; [key: string]: unknown }
 
@@ -109,3 +112,22 @@ describe('route template resolver in the runtime', () => {
   })
 })
 
+describe('Astro components', () => {
+  const pkg = JSON.parse(packageJson)
+
+  it('ships and exports TaktRoute.astro', () => {
+    expect(pkg.exports['./TaktRoute.astro']).toBe('./TaktRoute.astro')
+    expect(pkg.files).toContain('TaktRoute.astro')
+  })
+
+  it('renders the route meta from Astro.routePattern only when it is defined', () => {
+    expect(routeComponent).toContain('Astro.routePattern')
+    expect(routeComponent).toContain('<meta name="takt:route"')
+  })
+
+  it('lets <Takt /> render the route meta and wire the resolver when routeTemplates is on', () => {
+    expect(component).toContain('Astro.routePattern')
+    expect(component).toContain('<meta name="takt:route"')
+    expect(component).toContain(`document.querySelector('meta[name="takt:route"]')`)
+  })
+})
