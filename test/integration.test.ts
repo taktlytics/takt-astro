@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import takt from '../src/index'
+import takt, * as api from '../src/index'
 import { takt as namedTakt } from '../src/integration'
 import { resolveOptions, assertNoScrubUrl } from '../src/options'
 import { buildRuntime } from '../src/runtime'
@@ -10,6 +10,14 @@ function setup(options?: Parameters<typeof takt>[0]) {
   integration.hooks['astro:config:setup']?.({ injectScript } as never)
   return { integration, injectScript, content: injectScript.mock.calls[0]?.[1] as string }
 }
+
+describe('public API surface', () => {
+  it('re-exports the consent functions from core', () => {
+    expect(typeof api.optOut).toBe('function')
+    expect(typeof api.optIn).toBe('function')
+    expect(typeof api.isOptedOut).toBe('function')
+  })
+})
 
 describe('takt integration object', () => {
   it('is a default export and a named export pointing to the same factory', () => {
