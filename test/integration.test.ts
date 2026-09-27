@@ -144,6 +144,16 @@ describe('advanced tracker options', () => {
     expect(content).toContain('"tagged":true')
   })
 
+  it('serializes debug into the JSON passed to init', () => {
+    const { content } = setup({ debug: true })
+    expect(content).toContain('"debug":true')
+  })
+
+  it('forwards debug through resolveOptions', () => {
+    expect(resolveOptions({ debug: true }).debug).toBe(true)
+    expect(resolveOptions().debug).toBeUndefined()
+  })
+
   it('forwards scalar advanced options through resolveOptions', () => {
     const r = resolveOptions({
       sampleRate: 0.5,
