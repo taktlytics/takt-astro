@@ -1,16 +1,19 @@
 ---
 import { ClientRouter } from 'astro:transitions'
+import TaktRoute from '@vskstudio/takt-astro/TaktRoute.astro'
 ---
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>Takt e2e</title>
     <ClientRouter />
+    <TaktRoute />
   </head>
   <body>
     <h1>Home</h1>
     <button id="signup">Sign up</button>
     <a id="nav" href="/about">About</a>
+    <a id="post" href="/blog/hello">Post</a>
     <script>
       import { track } from '@vskstudio/takt-astro'
       document.getElementById('signup')?.addEventListener('click', () => {

@@ -40,4 +40,23 @@ export function contractTests(): void {
     await page.waitForTimeout(500)
     expect(events.filter((e) => e.n === 'pageview').length).toBe(2)
   })
+
+  test('sends the route template of a dynamic page on load', async ({ page }) => {
+    const events = await collect(page)
+    await page.goto('/blog/hello')
+    await expect
+      .poll(() => new URL(events.find((e) => e.n === 'pageview')?.u ?? 'http://x/').pathname)
+      .toBe('/blog/[slug]')
+  })
+
+  test('reads the route template of the new page after a ClientRouter navigation', async ({ page }) => {
+    const events = await collect(page)
+    await page.goto('/')
+    await expect.poll(() => events.filter((e) => e.n === 'pageview').length).toBe(1)
+    await page.click('#post')
+    await page.waitForURL('**/blog/hello')
+    await expect
+      .poll(() => events.filter((e) => e.n === 'pageview').map((e) => new URL(e.u ?? 'http://x/').pathname))
+      .toEqual(['/', '/blog/[slug]'])
+  })
 }
