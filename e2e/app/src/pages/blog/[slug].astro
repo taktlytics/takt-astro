@@ -1,16 +1,20 @@
 ---
 import { ClientRouter } from 'astro:transitions'
 import TaktRoute from '@vskstudio/takt-astro/TaktRoute.astro'
+
+export function getStaticPaths() {
+  return [{ params: { slug: 'hello' } }]
+}
 ---
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Takt e2e — About</title>
+    <title>Takt e2e post</title>
     <ClientRouter />
     <TaktRoute />
   </head>
   <body>
-    <h1>About</h1>
+    <h1>Post</h1>
     <a id="nav" href="/">Home</a>
   </body>
 </html>

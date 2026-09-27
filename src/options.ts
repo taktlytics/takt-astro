@@ -39,6 +39,8 @@ export interface TaktOptions {
   queryParams?: string[]
   /** Path prefixes never tracked, e.g. `['/app','/account']`. Segment-bounded: `'/app'` matches `'/app'` and `'/app/…'` but not `'/application'`. */
   exclude?: string[]
+  redactRoutes?: string[]
+  routeTemplates?: boolean
   /**
    * Rewrite each URL before it is sent (e.g. strip a fragment or PII).
    * MUST be a self-contained function: it is stringified at build time and
@@ -92,6 +94,8 @@ export function resolveOptions(options: TaktOptions = {}): InitOptions {
     trackQuery: options.trackQuery,
     queryParams: options.queryParams,
     exclude: options.exclude,
+    redactRoutes: options.redactRoutes,
+    routeTemplates: options.routeTemplates,
     tagged: options.tagged,
     debug: options.debug,
   }

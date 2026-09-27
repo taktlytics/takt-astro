@@ -11,7 +11,7 @@ Astro integration for [Takt](https://github.com/vskstudio/takt-core), privacy-fr
 pnpm add @vskstudio/takt-astro @vskstudio/takt-core
 ```
 
-Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.9.0`).
+Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.10.0`).
 
 ## Usage
 
@@ -62,6 +62,8 @@ Both the integration and the component accept the same options, with one excepti
 | `trackQuery` | `boolean` | `false` | Keep the full query string and hash instead of stripping them. Wins over `queryParams`. |
 | `queryParams` | `string[]` | – | Allowlist of query params to keep, applied only when `trackQuery` is off. |
 | `exclude` | `string[]` | – | Path prefixes never tracked, e.g. `['/app', '/account']` (segment-bounded, checked at send time). |
+| `redactRoutes` | `string[]` | none | Route patterns sent in place of the real path, e.g. `['/verify/[token]']` sends `/verify/[token]` instead of `/verify/abc123`. See [Route redaction](#route-redaction). |
+| `routeTemplates` | `boolean` | `false` | Send every page as its Astro route template (`/blog/[slug]`), read from `Astro.routePattern`. Needs Astro 5 and the route meta, see [Route redaction](#route-redaction). |
 | `scrubUrl` | `(url: string) => string` | – | **Integration only.** Rewrite each URL before it is sent (page, referrer, and the `url` prop of outbound-link and file-download events), e.g. to strip a fragment or PII. See the note below. |
 | `tagged` | `boolean` | `false` | Auto-track clicks on `[data-takt-event]` elements; `data-takt-prop-*` attributes become event props. |
 | `debug` | `boolean` | `false` | Log each payload to the browser console before sending. |
@@ -80,6 +82,42 @@ Both the integration and the component accept the same options, with one excepti
 ## View Transitions
 
 Astro's client router runs several history operations per navigation (scroll-restoration `replaceState` plus `pushState`), so Takt does **not** rely on core's history patch here — it would over-count. Instead the runtime fires one explicit initial pageview and then one per Astro `astro:after-swap` event (including View Transitions DOM swaps and back/forward), so each navigation is counted exactly once. On a plain MPA (no client router) the script re-runs per page load, which fires the initial pageview each time. The runtime is SSR/prerender safe — it only runs in the browser.
+
+## Route redaction
+
+Query strings are stripped by default, but path segments are sent as they are, so `/verify/abc123` leaks the token. List the sensitive routes in `redactRoutes` and every matching path is sent as its pattern, while the other pages keep their real path:
+
+```js
+takt({ redactRoutes: ['/verify/[token]', '/invoices/[id].pdf'] })
+```
+
+The rule covers the page URL, same-origin referrers, outbound and download link destinations, and 404 paths. Patterns use Astro's syntax (`[param]`, `[...rest]`) and also accept `:param` and `*`.
+
+To send every page as its route template instead (`/blog/hello` becomes `/blog/[slug]`), turn on `routeTemplates`. Astro knows the template on the server (`Astro.routePattern`), so it travels in a `<meta name="takt:route">` tag that the runtime reads at each pageview, including after a ClientRouter navigation. With the integration, render that tag with `<TaktRoute />` in the `<head>` of your layout:
+
+```js
+// astro.config.mjs
+export default defineConfig({
+  integrations: [takt({ routeTemplates: true })],
+})
+```
+
+```astro
+---
+import TaktRoute from '@vskstudio/takt-astro/TaktRoute.astro'
+---
+<head>
+  <TaktRoute />
+</head>
+```
+
+The `<Takt />` component renders the tag itself when `routeTemplates` is set:
+
+```astro
+<Takt domain="example.com" routeTemplates />
+```
+
+`Astro.routePattern` exists from Astro 5. On Astro 4 no tag is rendered, so `redactRoutes` still applies and the real path is sent otherwise. This mode merges every article of a public blog into one row, so it suits private areas better; `redactRoutes` is usually the right tool for a public site.
 
 ## Custom events
 
@@ -161,7 +199,7 @@ From `@vskstudio/takt-astro`:
 - Re-exported from core: `track`, `pageview`, `optOut`, `optIn`, `isOptedOut`, `createStats`, `PublicApiError`, `badgeUrl`, `embedUrl`
 - Types: `TaktOptions`, plus `InitOptions`, `TrackOptions`, `BadgeOptions`, `EmbedOptions`, `BadgeVariant`, `BadgeGlyph`, `EmbedTheme`, `WidgetLang`, `StatsClient`, `StatsClientOptions`, `StatsParams`, `StatsPeriod`, `StatsDimension`, `StatsMetrics`, `StatsSummary`, `StatsPoint`, `StatsTimeseries`, `StatsBreakdownRow`, `StatsBreakdown`, `StatsRealtime` re-exported from core
 
-Component subpaths: `@vskstudio/takt-astro/Takt.astro`, `/Badge.astro`, `/Embed.astro`.
+Component subpaths: `@vskstudio/takt-astro/Takt.astro`, `/TaktRoute.astro`, `/Badge.astro`, `/Embed.astro`.
 
 ## License
 

@@ -1,5 +1,7 @@
 import type { InitOptions } from '@vskstudio/takt-core'
 
+const ROUTE_TEMPLATE_RESOLVER = `() => document.querySelector('meta[name="takt:route"]')?.getAttribute('content') ?? null`
+
 /**
  * Build the browser runtime that boots Takt.
  *
@@ -29,7 +31,11 @@ export function buildRuntime(options: InitOptions, scrubUrl?: (url: string) => s
   // raw JS via `.toString()`. It MUST be self-contained (no closure/outer-scope
   // references): it is stringified here at build time and re-evaluated in the
   // browser, where the surrounding scope no longer exists.
-  const config = scrubUrl ? `Object.assign(${json}, { scrubUrl: ${scrubUrl.toString()} })` : json
+  const functions = [
+    ...(scrubUrl ? [`scrubUrl: ${scrubUrl.toString()}`] : []),
+    ...(options.routeTemplates ? [`routeTemplate: ${ROUTE_TEMPLATE_RESOLVER}`] : []),
+  ]
+  const config = functions.length ? `Object.assign(${json}, { ${functions.join(', ')} })` : json
   return [
     `import { init, pageview } from '@vskstudio/takt-core';`,
     // SSR/prerender guard: this module is evaluated under Node when Astro
