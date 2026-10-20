@@ -11,7 +11,7 @@ Astro integration for [Takt](https://github.com/taktlytics/takt-core), privacy-f
 pnpm add @vskstudio/takt-astro @vskstudio/takt-core
 ```
 
-Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.10.0`).
+Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.12.0`).
 
 ## Usage
 
@@ -52,7 +52,8 @@ Both the integration and the component accept the same options, with one excepti
 | `endpoint` | `string` | `https://taktlytics.com/api/event` | Ingestion endpoint. Pass `/api/event` for a same-origin first-party proxy. |
 | `scriptOrigin` | `string` | n/a | First-party origin to derive the endpoint from (`{origin}/api/event`): your Takt domain or a custom domain to dodge ad-blockers (endpoint wins over it). |
 | `outbound` | `boolean` | `false` | Auto-track outbound link clicks. |
-| `files` | `boolean` | `false` | Auto-track file downloads, using core's default extension list (this integration does not expose an extension override). |
+| `files` | `boolean` | `false` | Auto-track file downloads. Narrow the extensions with `fileExtensions`. |
+| `fileExtensions` | `string[]` | core's list | File extensions counted as downloads when `files` is on, e.g. `['pdf', 'zip']`. |
 | `track404` | `boolean` | `false` | Report a `404` event when the page is an error page (`[data-takt-404]` / `<meta name="takt:404">` marker, or a 404 HTTP status). |
 | `spa` | `boolean` | `true` | Track client-side navigations. |
 | `respectDnt` | `boolean` | `true` | Suppress events when Do Not Track is on. |
@@ -61,8 +62,9 @@ Both the integration and the component accept the same options, with one excepti
 | `sampleRate` | `number` | `1` | Fraction of visitors to track, `0` to `1`. |
 | `trackQuery` | `boolean` | `false` | Keep the full query string and hash instead of stripping them. Wins over `queryParams`. |
 | `queryParams` | `string[]` | n/a | Allowlist of query params to keep, applied only when `trackQuery` is off. |
-| `exclude` | `string[]` | n/a | Path prefixes never tracked, e.g. `['/app', '/account']` (segment-bounded, checked at send time). |
+| `exclude` | `string[]` | n/a | Path prefixes never tracked, e.g. `['/app', '/account']`. Segment-bounded, case-insensitive, blind to a trailing slash, and matched on the percent-decoded path (checked at send time). |
 | `redactRoutes` | `string[]` | none | Route patterns sent in place of the real path, e.g. `['/verify/[token]']` sends `/verify/[token]` instead of `/verify/abc123`. See [Route redaction](#route-redaction). |
+| `redactUndecodablePaths` | `boolean` | `true` | When a route is configured, a path that cannot be decoded is sent as `/[redacted]`. Set `false` to decode it leniently and match it against the routes instead. |
 | `routeTemplates` | `boolean` | `false` | Send every page as its Astro route template (`/blog/[slug]`), read from `Astro.routePattern`. Needs Astro 5 and the route meta, see [Route redaction](#route-redaction). |
 | `scrubUrl` | `(url: string) => string` | n/a | **Integration only.** Rewrite each URL before it is sent (page, referrer, and the `url` prop of outbound-link and file-download events), e.g. to strip a fragment or PII. See the note below. |
 | `tagged` | `boolean` | `false` | Auto-track clicks on `[data-takt-event]` elements; `data-takt-prop-*` attributes become event props. |
@@ -91,7 +93,9 @@ Query strings are stripped by default, but path segments are sent as they are, s
 takt({ redactRoutes: ['/verify/[token]', '/invoices/[id].pdf'] })
 ```
 
-The rule covers the page URL, same-origin referrers, outbound and download link destinations, and 404 paths. Patterns use Astro's syntax (`[param]`, `[...rest]`) and also accept `:param` and `*`.
+The rule covers the page URL, same-origin referrers, outbound and download link destinations, and 404 paths. Patterns use Astro's syntax (`[param]`, `[[optional]]`, `[...rest]`), the Vue / React / Angular / Solid syntax (`:param`, `:param?`, `*`, `**`), and the Laravel / Symfony braces (`{param}`, `{param?}`, `{param<regex>}`). Matching is case-insensitive and runs on the decoded path.
+
+A `{param<regex>}` constraint must follow a restricted grammar (printable ASCII, literals, `.`, `\d`, `\w`, `\s` and their negations, character classes, top-level alternation, bounded quantifiers). A route whose constraint falls outside it is never sent raw: every matching path is masked as `/[redacted]`. A path that cannot be decoded follows `redactUndecodablePaths` (see the options table).
 
 To send every page as its route template instead (`/blog/hello` becomes `/blog/[slug]`), turn on `routeTemplates`. Astro knows the template on the server (`Astro.routePattern`), so it travels in a `<meta name="takt:route">` tag that the runtime reads at each pageview, including after a ClientRouter navigation. With the integration, render that tag with `<TaktRoute />` in the `<head>` of your layout:
 
@@ -196,7 +200,7 @@ From `@vskstudio/takt-astro`:
 
 - `default` / `takt`: the integration factory (same function under both names)
 - `resolveOptions`, `assertNoScrubUrl`, `buildRuntime`: the internals the `.astro` components build on, exported so you can drive the runtime yourself
-- Re-exported from core: `track`, `pageview`, `optOut`, `optIn`, `isOptedOut`, `createStats`, `PublicApiError`, `badgeUrl`, `embedUrl`
+- Re-exported from core: `track`, `pageview`, `optOut`, `optIn`, `isOptedOut`, `createStats`, `PublicApiError`, `badgeUrl`, `embedUrl`, `normalizeHost`
 - Types: `TaktOptions`, plus `InitOptions`, `TrackOptions`, `BadgeOptions`, `EmbedOptions`, `BadgeVariant`, `BadgeGlyph`, `EmbedTheme`, `WidgetLang`, `StatsClient`, `StatsClientOptions`, `StatsParams`, `StatsPeriod`, `StatsDimension`, `StatsMetrics`, `StatsSummary`, `StatsPoint`, `StatsTimeseries`, `StatsBreakdownRow`, `StatsBreakdown`, `StatsRealtime` re-exported from core
 
 Component subpaths: `@vskstudio/takt-astro/Takt.astro`, `/TaktRoute.astro`, `/Badge.astro`, `/Embed.astro`.
