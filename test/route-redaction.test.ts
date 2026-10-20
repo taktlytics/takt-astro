@@ -131,3 +131,13 @@ describe('Astro components', () => {
     expect(component).toContain(`document.querySelector('meta[name="takt:route"]')`)
   })
 })
+
+describe('redactUndecodablePaths reaches core', () => {
+  it('passes redactUndecodablePaths false to core init', () => {
+    const doc = fakeDocument(null)
+    const runtime = buildRuntime(resolveOptions({ redactRoutes: ['/orders/[id]'], redactUndecodablePaths: false }))
+    const { config } = boot(runtime, doc)
+    expect(config().redactUndecodablePaths).toBe(false)
+    expect(config().redactRoutes).toEqual(['/orders/[id]'])
+  })
+})
