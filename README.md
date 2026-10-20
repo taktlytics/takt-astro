@@ -11,7 +11,7 @@ Astro integration for [Takt](https://github.com/taktlytics/takt-core), privacy-f
 pnpm add @vskstudio/takt-astro @vskstudio/takt-core
 ```
 
-Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.12.2`).
+Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.12.3`).
 
 ## Usage
 
