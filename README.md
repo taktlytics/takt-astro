@@ -81,6 +81,28 @@ Both the integration and the component accept the same options, with one excepti
 > carry a function. So passing `scrubUrl` to `<Takt />` **throws at build time**
 > rather than silently doing nothing. Use the integration if you need it.
 
+### Examples
+
+Downloads of selected file types only, with `files` on and `fileExtensions` narrowing the default list:
+
+```js
+takt({ files: true, fileExtensions: ['pdf', 'zip'] })
+```
+
+Count 404 pages (the page must carry the `[data-takt-404]` marker or answer with a 404 status):
+
+```js
+takt({ track404: true })
+```
+
+Keep the real path for any route that does not decode, by setting `redactUndecodablePaths: false` (the default `true` sends it as `/[redacted]`):
+
+```js
+takt({ redactRoutes: ['/verify/[token]'], redactUndecodablePaths: false })
+```
+
+The same settings exist as attributes of the standalone `takt.auto.js` script: `redactRoutes` is `data-redact-routes`, `redactUndecodablePaths` is `data-redact-undecodable-paths`, `fileExtensions` is `data-downloads-ext`, and the opt-in features are listed in `data-auto` (`outbound`, `downloads` for `files`, `tagged`, `404` for `track404`).
+
 ## View Transitions
 
 Astro's client router runs several history operations per navigation (scroll-restoration `replaceState` plus `pushState`), so Takt does **not** rely on core's history patch here. It would over-count. Instead the runtime fires one explicit initial pageview and then one per Astro `astro:after-swap` event (including View Transitions DOM swaps and back/forward), so each navigation is counted exactly once. On a plain MPA (no client router) the script re-runs per page load, which fires the initial pageview each time. The runtime is SSR/prerender safe. It only runs in the browser.
