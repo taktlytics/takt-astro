@@ -35,7 +35,7 @@ export function contractTests(): void {
     await page.click('#nav')
     await page.waitForURL('**/about')
     await expect.poll(() => events.filter((e) => e.n === 'pageview').length).toBeGreaterThanOrEqual(2)
-    // Settle, then assert the exact count — guards against the ClientRouter
+    // Settle, then assert the exact count. Guards against the ClientRouter
     // double-count where several history ops fire per navigation.
     await page.waitForTimeout(500)
     expect(events.filter((e) => e.n === 'pageview').length).toBe(2)

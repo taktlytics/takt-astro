@@ -1,9 +1,9 @@
 # @vskstudio/takt-astro
 
 
-> 📚 **Documentation** — [taktlytics.com/docs/wrappers/astro](https://taktlytics.com/docs/wrappers/astro)
+> 📚 **Documentation**: [taktlytics.com/docs/wrappers/astro](https://taktlytics.com/docs/wrappers/astro)
 
-Astro integration for [Takt](https://github.com/taktlytics/takt-core), privacy-friendly analytics. It injects a tiny browser runtime that boots Takt, fires the initial pageview, and tracks client-side navigations — including [Astro View Transitions](https://docs.astro.build/en/guides/view-transitions/).
+Astro integration for [Takt](https://github.com/taktlytics/takt-core), privacy-friendly analytics. It injects a tiny browser runtime that boots Takt, fires the initial pageview, and tracks client-side navigations, including [Astro View Transitions](https://docs.astro.build/en/guides/view-transitions/).
 
 ## Install
 
@@ -15,7 +15,7 @@ Both are peer dependencies: `astro` (`>=4`) and `@vskstudio/takt-core` (`>=0.10.
 
 ## Usage
 
-Pick **one** of the two paths below — not both. Both boot core's default instance, guarded by a shared `window.__takt` flag: installing both does not double-count (the second boot is skipped), but it ships the runtime twice for nothing.
+Pick **one** of the two paths below, not both. Both boot core's default instance, guarded by a shared `window.__takt` flag: installing both does not double-count (the second boot is skipped), but it ships the runtime twice for nothing.
 
 ### Integration (recommended)
 
@@ -50,21 +50,21 @@ Both the integration and the component accept the same options, with one excepti
 | --- | --- | --- | --- |
 | `domain` | `string` | `location.hostname` | Site identifier sent with every event. |
 | `endpoint` | `string` | `https://taktlytics.com/api/event` | Ingestion endpoint. Pass `/api/event` for a same-origin first-party proxy. |
-| `scriptOrigin` | `string` | – | First-party origin to derive the endpoint from (`{origin}/api/event`) — your Takt domain or a custom domain to dodge ad-blockers (endpoint wins over it). |
+| `scriptOrigin` | `string` | n/a | First-party origin to derive the endpoint from (`{origin}/api/event`): your Takt domain or a custom domain to dodge ad-blockers (endpoint wins over it). |
 | `outbound` | `boolean` | `false` | Auto-track outbound link clicks. |
 | `files` | `boolean` | `false` | Auto-track file downloads, using core's default extension list (this integration does not expose an extension override). |
 | `track404` | `boolean` | `false` | Report a `404` event when the page is an error page (`[data-takt-404]` / `<meta name="takt:404">` marker, or a 404 HTTP status). |
 | `spa` | `boolean` | `true` | Track client-side navigations. |
 | `respectDnt` | `boolean` | `true` | Suppress events when Do Not Track is on. |
 | `excludeLocalhost` | `boolean` | `true` | Suppress events on localhost / private IPs. |
-| `enabled` | `boolean` | `true` | Master kill switch — set `false` to suppress every event. |
-| `sampleRate` | `number` | `1` | Fraction of visitors to track, `0`–`1`. |
+| `enabled` | `boolean` | `true` | Master kill switch: set `false` to suppress every event. |
+| `sampleRate` | `number` | `1` | Fraction of visitors to track, `0` to `1`. |
 | `trackQuery` | `boolean` | `false` | Keep the full query string and hash instead of stripping them. Wins over `queryParams`. |
-| `queryParams` | `string[]` | – | Allowlist of query params to keep, applied only when `trackQuery` is off. |
-| `exclude` | `string[]` | – | Path prefixes never tracked, e.g. `['/app', '/account']` (segment-bounded, checked at send time). |
+| `queryParams` | `string[]` | n/a | Allowlist of query params to keep, applied only when `trackQuery` is off. |
+| `exclude` | `string[]` | n/a | Path prefixes never tracked, e.g. `['/app', '/account']` (segment-bounded, checked at send time). |
 | `redactRoutes` | `string[]` | none | Route patterns sent in place of the real path, e.g. `['/verify/[token]']` sends `/verify/[token]` instead of `/verify/abc123`. See [Route redaction](#route-redaction). |
 | `routeTemplates` | `boolean` | `false` | Send every page as its Astro route template (`/blog/[slug]`), read from `Astro.routePattern`. Needs Astro 5 and the route meta, see [Route redaction](#route-redaction). |
-| `scrubUrl` | `(url: string) => string` | – | **Integration only.** Rewrite each URL before it is sent (page, referrer, and the `url` prop of outbound-link and file-download events), e.g. to strip a fragment or PII. See the note below. |
+| `scrubUrl` | `(url: string) => string` | n/a | **Integration only.** Rewrite each URL before it is sent (page, referrer, and the `url` prop of outbound-link and file-download events), e.g. to strip a fragment or PII. See the note below. |
 | `tagged` | `boolean` | `false` | Auto-track clicks on `[data-takt-event]` elements; `data-takt-prop-*` attributes become event props. |
 | `debug` | `boolean` | `false` | Log each payload to the browser console before sending. |
 
@@ -72,16 +72,16 @@ Both the integration and the component accept the same options, with one excepti
 > is supported **only via the integration**, not the `<Takt />` component. The
 > integration serializes config into a build-time runtime string, so `scrubUrl` is
 > stringified with `.toString()` and re-evaluated in the browser. It MUST be a
-> **self-contained** function — no closure variables or outer-scope references — and
+> **self-contained** function. No closure variables or outer-scope references, and
 > must be **developer-controlled**: never build it from user input.
 >
 > The `<Takt />` component serializes its config as a JSON data island, which cannot
-> carry a function — so passing `scrubUrl` to `<Takt />` **throws at build time**
+> carry a function. So passing `scrubUrl` to `<Takt />` **throws at build time**
 > rather than silently doing nothing. Use the integration if you need it.
 
 ## View Transitions
 
-Astro's client router runs several history operations per navigation (scroll-restoration `replaceState` plus `pushState`), so Takt does **not** rely on core's history patch here — it would over-count. Instead the runtime fires one explicit initial pageview and then one per Astro `astro:after-swap` event (including View Transitions DOM swaps and back/forward), so each navigation is counted exactly once. On a plain MPA (no client router) the script re-runs per page load, which fires the initial pageview each time. The runtime is SSR/prerender safe — it only runs in the browser.
+Astro's client router runs several history operations per navigation (scroll-restoration `replaceState` plus `pushState`), so Takt does **not** rely on core's history patch here. It would over-count. Instead the runtime fires one explicit initial pageview and then one per Astro `astro:after-swap` event (including View Transitions DOM swaps and back/forward), so each navigation is counted exactly once. On a plain MPA (no client router) the script re-runs per page load, which fires the initial pageview each time. The runtime is SSR/prerender safe. It only runs in the browser.
 
 ## Route redaction
 
@@ -166,15 +166,15 @@ import Embed from '@vskstudio/takt-astro/Embed.astro'
 <Embed domain="example.com" theme="dark" />
 ```
 
-`Badge` renders an `<img>` (props: `domain` — required —, `variant` `a` | `b` | `d`, `glyph` `unplug` | `dash` | `off` | `eyeoff`, `lang` `fr` | `en`, `host`). Its `alt` defaults to `"takt"` and can be overridden; `loading="lazy"` and `decoding="async"` are applied after your attributes and cannot.
+`Badge` renders an `<img>` (props: `domain` (required), `variant` `a` | `b` | `d`, `glyph` `unplug` | `dash` | `off` | `eyeoff`, `lang` `fr` | `en`, `host`). Its `alt` defaults to `"takt"` and can be overridden; `loading="lazy"` and `decoding="async"` are applied after your attributes and cannot.
 
-`Embed` renders an `<iframe>` (props: `domain` — required —, `theme` `light` | `dark` | `auto`, `lang`, `host`, plus `width` = `404`, `height` = `264`, `title` = `"takt"`); the iframe is sandboxed (`allow-scripts allow-same-origin`) and ships a fixed `referrerpolicy="strict-origin-when-cross-origin"`, a `loading="lazy"` and a zero border — all applied after your attributes, so a consumer cannot weaken them. Extra attributes pass through to the underlying element, but the built `src` is locked and cannot be overridden. The optional `host` must be an absolute `http(s)` URL — core validates it and throws on anything else (e.g. a `javascript:` URL), and reduces it to its origin (dropping path/query). Omitting `host` falls back to the hosted Takt origin (`https://taktlytics.com`), not to the current origin.
+`Embed` renders an `<iframe>` (props: `domain` (required), `theme` `light` | `dark` | `auto`, `lang`, `host`, plus `width` = `404`, `height` = `264`, `title` = `"takt"`); the iframe is sandboxed (`allow-scripts allow-same-origin`) and ships a fixed `referrerpolicy="strict-origin-when-cross-origin"`, a `loading="lazy"` and a zero border: all applied after your attributes, so a consumer cannot weaken them. Extra attributes pass through to the underlying element, but the built `src` is locked and cannot be overridden. The optional `host` must be an absolute `http(s)` URL. Core validates it and throws on anything else (e.g. a `javascript:` URL), and reduces it to its origin (dropping path/query). Omitting `host` falls back to the hosted Takt origin (`https://taktlytics.com`), not to the current origin.
 
 ## Public stats
 
 `createStats` (re-exported from core) reads public analytics:
 
-Every method takes the domain first and the params second — the domain is optional once `createStats` is bound to one:
+Every method takes the domain first and the params second: the domain is optional once `createStats` is bound to one:
 
 ```js
 import { createStats, PublicApiError } from '@vskstudio/takt-astro'
@@ -194,8 +194,8 @@ try {
 
 From `@vskstudio/takt-astro`:
 
-- `default` / `takt` — the integration factory (same function under both names)
-- `resolveOptions`, `assertNoScrubUrl`, `buildRuntime` — the internals the `.astro` components build on, exported so you can drive the runtime yourself
+- `default` / `takt`: the integration factory (same function under both names)
+- `resolveOptions`, `assertNoScrubUrl`, `buildRuntime`: the internals the `.astro` components build on, exported so you can drive the runtime yourself
 - Re-exported from core: `track`, `pageview`, `optOut`, `optIn`, `isOptedOut`, `createStats`, `PublicApiError`, `badgeUrl`, `embedUrl`
 - Types: `TaktOptions`, plus `InitOptions`, `TrackOptions`, `BadgeOptions`, `EmbedOptions`, `BadgeVariant`, `BadgeGlyph`, `EmbedTheme`, `WidgetLang`, `StatsClient`, `StatsClientOptions`, `StatsParams`, `StatsPeriod`, `StatsDimension`, `StatsMetrics`, `StatsSummary`, `StatsPoint`, `StatsTimeseries`, `StatsBreakdownRow`, `StatsBreakdown`, `StatsRealtime` re-exported from core
 

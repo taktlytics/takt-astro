@@ -21,7 +21,7 @@ const config = JSON.stringify(resolveOptions(Astro.props))
 const route = Astro.props.routeTemplates ? Astro.routePattern : undefined
 ---
 {route && <meta name="takt:route" content={route} />}
-<!-- Pick ONE install path — this component OR the integration — not both. -->
+<!-- Pick ONE install path: this component OR the integration, not both. -->
 <script type="application/json" data-takt-config set:html={config}></script>
 <!-- A bundled (non-inline) module so Astro resolves the bare core import; an
      is:inline module would leave it unresolved in the browser. -->
