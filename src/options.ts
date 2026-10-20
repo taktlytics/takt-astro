@@ -18,6 +18,7 @@ export interface TaktOptions {
   outbound?: boolean
   /** Auto-track file downloads. */
   files?: boolean
+  fileExtensions?: string[]
   /**
    * Report a `404` event when the page is an error page (`[data-takt-404]` /
    * `<meta name="takt:404">` marker, or a 404 HTTP status).
@@ -40,6 +41,7 @@ export interface TaktOptions {
   /** Path prefixes never tracked, e.g. `['/app','/account']`. Segment-bounded: `'/app'` matches `'/app'` and `'/app/…'` but not `'/application'`. */
   exclude?: string[]
   redactRoutes?: string[]
+  redactUndecodablePaths?: boolean
   routeTemplates?: boolean
   /**
    * Rewrite each URL before it is sent (e.g. strip a fragment or PII).
@@ -85,6 +87,7 @@ export function resolveOptions(options: TaktOptions = {}): InitOptions {
     scriptOrigin: options.scriptOrigin,
     outbound: options.outbound ?? false,
     files: options.files ?? false,
+    fileExtensions: options.fileExtensions,
     notFound: options.track404 ?? false,
     respectDnt: options.respectDnt ?? true,
     excludeLocalhost: options.excludeLocalhost ?? true,
@@ -95,6 +98,7 @@ export function resolveOptions(options: TaktOptions = {}): InitOptions {
     queryParams: options.queryParams,
     exclude: options.exclude,
     redactRoutes: options.redactRoutes,
+    redactUndecodablePaths: options.redactUndecodablePaths,
     routeTemplates: options.routeTemplates,
     tagged: options.tagged,
     debug: options.debug,

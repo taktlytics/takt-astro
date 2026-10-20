@@ -269,3 +269,36 @@ describe('injection safety', () => {
     expect(opens).toBe(closes)
   })
 })
+
+describe('takt-core 0.12 options', () => {
+  it('re-exports normalizeHost from core and keeps only the origin', () => {
+    expect(typeof api.normalizeHost).toBe('function')
+    expect(api.normalizeHost('https://takt.example.com/x?y=1')).toBe('https://takt.example.com')
+  })
+
+  it('forwards redactUndecodablePaths through resolveOptions, undefined by default', () => {
+    expect(resolveOptions({ redactUndecodablePaths: false }).redactUndecodablePaths).toBe(false)
+    expect(resolveOptions().redactUndecodablePaths).toBeUndefined()
+  })
+
+  it('serializes redactUndecodablePaths:false into the injected runtime', () => {
+    const { content } = setup({ redactRoutes: ['/orders/[id]'], redactUndecodablePaths: false })
+    expect(content).toContain('"redactUndecodablePaths":false')
+  })
+
+  it('forwards fileExtensions through resolveOptions, undefined by default', () => {
+    expect(resolveOptions({ files: true, fileExtensions: ['pdf', 'zip'] }).fileExtensions).toEqual(['pdf', 'zip'])
+    expect(resolveOptions({ files: true }).fileExtensions).toBeUndefined()
+  })
+
+  it('serializes fileExtensions next to files into the injected runtime', () => {
+    const { content } = setup({ files: true, fileExtensions: ['pdf', 'zip'] })
+    expect(content).toContain('"files":true')
+    expect(content).toContain('"fileExtensions":["pdf","zip"]')
+  })
+
+  it('omits fileExtensions from the runtime when it is not set', () => {
+    const { content } = setup({ files: true })
+    expect(content).not.toContain('fileExtensions')
+  })
+})
