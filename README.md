@@ -223,7 +223,7 @@ From `@vskstudio/takt-astro`:
 - `default` / `takt`: the integration factory (same function under both names)
 - `resolveOptions`, `assertNoScrubUrl`, `buildRuntime`: the internals the `.astro` components build on, exported so you can drive the runtime yourself
 - Re-exported from core: `track`, `pageview`, `optOut`, `optIn`, `isOptedOut`, `createStats`, `PublicApiError`, `badgeUrl`, `embedUrl`, `normalizeHost`
-- Types: `TaktOptions`, plus `InitOptions`, `TrackOptions`, `BadgeOptions`, `EmbedOptions`, `BadgeVariant`, `BadgeGlyph`, `EmbedTheme`, `WidgetLang`, `StatsClient`, `StatsClientOptions`, `StatsParams`, `StatsPeriod`, `StatsDimension`, `StatsMetrics`, `StatsSummary`, `StatsPoint`, `StatsTimeseries`, `StatsBreakdownRow`, `StatsBreakdown`, `StatsRealtime` re-exported from core
+- Types: `TaktOptions`, plus `InitOptions`, `TrackOptions`, `Payload`, `BadgeOptions`, `EmbedOptions`, `BadgeVariant`, `BadgeGlyph`, `EmbedTheme`, `WidgetLang`, `StatsClient`, `StatsClientOptions`, `StatsParams`, `StatsPeriod`, `StatsDimension`, `StatsMetrics`, `StatsSummary`, `StatsPoint`, `StatsTimeseries`, `StatsBreakdownRow`, `StatsBreakdown`, `StatsRealtime` re-exported from core
 
 Component subpaths: `@vskstudio/takt-astro/Takt.astro`, `/TaktRoute.astro`, `/Badge.astro`, `/Embed.astro`.
 
