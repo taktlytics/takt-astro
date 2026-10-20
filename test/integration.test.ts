@@ -66,7 +66,7 @@ describe('injected runtime content', () => {
     const { content } = setup()
     // Core's history patch over-counts under Astro (ClientRouter runs several
     // history ops per nav), so auto is forced off and after-swap is the SPA
-    // source — exactly one pageview per navigation, and never page-load.
+    // source: exactly one pageview per navigation, and never page-load.
     expect(content).toContain('init(o)')
     expect(content).toContain('"auto":false')
     expect(content).toContain("astro:after-swap")

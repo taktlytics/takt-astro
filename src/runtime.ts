@@ -15,14 +15,14 @@ export function buildRuntime(options: InitOptions, scrubUrl?: (url: string) => s
   // SPA tracking is requested unless core's `auto` was explicitly disabled.
   const spa = options.auto !== false
   // `<` is escaped so a domain/endpoint containing `</script>` (or `<!--`) cannot
-  // terminate the inline `<script>` tag or open a comment in the emitted HTML —
+  // terminate the inline `<script>` tag or open a comment in the emitted HTML.
   // JSON.stringify alone does not escape `/`, and the HTML parser stops at a
   // literal `</script>` regardless of JS string context. JSON.parse ignores the
   // `\uXXXX` escapes, so the values round-trip unchanged at runtime.
   // `auto` is forced off: Astro's ClientRouter runs several history operations per
   // navigation (scroll-restoration replaceState + pushState), so core's history
   // patch would emit several pageviews per nav. We drive pageviews from Astro's
-  // own lifecycle instead — see below.
+  // own lifecycle instead: see below.
   const json = JSON.stringify({ ...options, auto: false })
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')

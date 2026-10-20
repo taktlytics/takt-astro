@@ -10,7 +10,7 @@ export interface TaktOptions {
   /** Ingestion endpoint. Defaults to `https://taktlytics.com/api/event` (the hosted Takt origin); pass `/api/event` for a same-origin first-party proxy. */
   endpoint?: string
   /**
-   * First-party origin to derive the endpoint from (`{origin}/api/event`) — a
+   * First-party origin to derive the endpoint from (`{origin}/api/event`): a
    * custom domain you proxy through to dodge ad-blockers. `endpoint` wins over it.
    */
   scriptOrigin?: string
@@ -29,9 +29,9 @@ export interface TaktOptions {
   respectDnt?: boolean
   /** Suppress events on localhost and private IP ranges. Default `true`. */
   excludeLocalhost?: boolean
-  /** Master kill switch — when `false`, every event is suppressed. */
+  /** Master kill switch: when `false`, every event is suppressed. */
   enabled?: boolean
-  /** Fraction of visitors to track, `0`–`1`. Defaults to tracking everyone. */
+  /** Fraction of visitors to track, `0` to `1`. Defaults to tracking everyone. */
   sampleRate?: number
   /** Send the full query string with pageviews instead of stripping it. */
   trackQuery?: boolean
@@ -49,7 +49,7 @@ export interface TaktOptions {
    *
    * Integration-only: a function cannot survive the `<Takt />` component's
    * JSON data island, so it is supported solely via the `takt()` integration in
-   * `astro.config`. Passing it to `<Takt />` throws — see {@link assertNoScrubUrl}.
+   * `astro.config`. Passing it to `<Takt />` throws: see {@link assertNoScrubUrl}.
    */
   scrubUrl?: (url: string) => string
   /** Auto-track elements marked with `data-takt-event`. */
@@ -60,7 +60,7 @@ export interface TaktOptions {
 /**
  * Guard the `<Takt />` component path against `scrubUrl`. The component
  * serializes its config as a JSON data island (`JSON.stringify` → `JSON.parse`),
- * which silently drops functions — so accepting `scrubUrl` there would be a
+ * which silently drops functions, so accepting `scrubUrl` there would be a
  * silent no-op. Fail fast at build time and point to the integration, which
  * embeds `scrubUrl` as build-time JS instead.
  */
@@ -75,7 +75,7 @@ export function assertNoScrubUrl(options: TaktOptions = {}): void {
 
 /**
  * Map user options to core's {@link InitOptions} for JSON serialization.
- * `scrubUrl` is intentionally absent here — it is a function and cannot survive
+ * `scrubUrl` is intentionally absent here. It is a function and cannot survive
  * `JSON.stringify`, so it is threaded separately to {@link buildRuntime}.
  */
 export function resolveOptions(options: TaktOptions = {}): InitOptions {
